@@ -55,10 +55,10 @@ def view_transaction(id):
     transaction_obj = Transaction.query.get(id)
 
     if not transaction_obj:
-        return jsonify({'error': 'task não encontrada'}), 404
+        return jsonify({'error': 'Transação não encontrada'}), 404
 
     if transaction_obj.user_id != user_id:
-        return jsonify({'error': 'task pertencente a outro usuario'}), 403
+        return jsonify({'error': 'Transação pertencente a outro usuario'}), 403
 
     return jsonify({'transaction': transaction_obj.to_dict()}), 200
 
@@ -74,8 +74,6 @@ def create_transaction():
     vtype = data.get('type')
     amount = data.get('amount')
     category = normalize_str(data.get('category'))
-
-    
 
 
     if not all([category, vtype]) or amount is None:
@@ -100,4 +98,48 @@ def create_transaction():
     db.session.commit()
 
     return jsonify({'trancation_created': transaction.to_dict()}), 201
+
+
+@transaction_bp.route('/transactions/<int:id>', methods=['PUT'])
+@jwt_required()
+def edit_transaction(id):
+    data = request.get_json()
+    user_id = int(get_jwt_identity())
+    
+    transaction_obj = Transaction.query.get(id)
+
+
+    if not transaction_obj:
+        return jsonify({'error': 'Transação não encontrada'}), 404
+
+    if transaction_obj.user_id != user_id:
+        return jsonify({'error': 'Você não tem permissão para acessar essa transação'}), 403
+    
+    vtype = data.get('type')
+    amount = data.get('amount')
+    category = normalize_str(data.get('category'))
+
+
+    if not all([category, vtype]) or amount is None:
+        return jsonify({'error': 'Type, amount e category devem ser obrigatorios'}), 400
+
+    
+    if vtype not in ['income', 'expense', 'refund']:
+        return jsonify({'error': 'Tipo de transação inválido'}), 400
+    
+    if not validator_amount(amount):
+        return jsonify({'error': 'Amount deve ser um numero maior que 0'}), 400
+        
+    
+    if category not in all_categories:
+        return jsonify({'error': 'Categoria inválida'}), 400
+    
+    transaction_obj.type = vtype
+    transaction_obj.amount = float(amount)
+    transaction_obj.category = category
+
+    db.session.commit()
+
+    return jsonify({'transaction edited': transaction_obj.to_dict()}), 200
+
     
