@@ -76,5 +76,5 @@ def profile():
     if not user_obj:
         return jsonify({'error': 'Usuário não encontrado'}), 404
 
-    return jsonify(user_obj.to_dict())
+    return jsonify(user_obj.to_dict()), 200
 
