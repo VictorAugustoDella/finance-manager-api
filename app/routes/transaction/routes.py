@@ -142,4 +142,21 @@ def edit_transaction(id):
 
     return jsonify({'transaction edited': transaction_obj.to_dict()}), 200
 
+
+@transaction_bp.route('/transactions/<int:id>', methods=['DELETE'])
+@jwt_required()
+def delete_transaction(id):
+    user_id = int(get_jwt_identity())
+    transaction_obj = Transaction.query.get(id)
+
+    if not transaction_obj:
+        return jsonify({'error': 'Transação não encontrada'}), 404
+    
+    if transaction_obj.user_id != user_id:
+        return jsonify({'error': 'Você não tem permissão para acessar essa transação'}), 403
+    
+    db.session.delete(transaction_obj)
+    db.session.commit()
+
+    return '', 204
     
