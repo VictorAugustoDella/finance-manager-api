@@ -27,7 +27,8 @@ def user(client):
 
         token = create_access_token(identity=str(user.id))
         return user, token
-    
+
+
 def test_register_sucess(client):
     response = client.post('/register', json={"name": "Marcos Aurelio", "email": "testefixture@gmail.com", "password":"Senhateste4321"})
     assert response.status_code == 201
@@ -60,7 +61,6 @@ def test_register_without_camp(client):
     
 
 def test_login_success(client, user):
-    name, token = user
     response = client.post('/login', json={"email": "testefixture@gmail.com", "password":"Senhateste4321"})
     assert response.status_code == 200
     assert "access_token" in response.get_json()
@@ -88,7 +88,41 @@ def test_login_without_password(client, user):
 def test_login_normalization_email(client, user):
     response = client.post('/login', json={"email": " tEstEfiXTurE@gMAIl.com  ", "password":"Senhateste4321"})
     assert response.status_code == 200
-    
+
+
+def test_profile_success(client, user):
+    user_obj, token = user
+    response = client.get('/profile', headers={
+        'Authorization': f'Bearer {token}'
+    })
+    assert response.status_code == 200
+    assert response.get_json() == user_obj.to_dict()
+
+def test_profile_without_token(client, user):
+    response = client.get('/profile')
+    assert response.status_code == 401
+    assert response.get_json() == {'error': 'Cabeçalho de autorização ausente'}
+
+def test_profile_invalid_token(client, user):
+    response = client.get('/profile', headers={
+        'Authorization': f'Bearer invalidtoken123123'
+    })
+    assert response.status_code == 422
+    assert response.get_json() == {'error': 'Token inválido'}
+
+def test_profile_user_inexistent(client, user):
+    user_obj, token = user
+    db.session.delete(user_obj)
+    db.session.commit()
+    response = client.get('/profile', headers={
+        'Authorization': f'Bearer {token}'
+    }) 
+    assert response.status_code == 404
+    assert response.get_json() == {'error': 'Usuário não encontrado'}
+
+
+
+
 
 
 

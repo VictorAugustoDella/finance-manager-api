@@ -16,7 +16,7 @@ class User(db.Model):
         'id': self.id,
         'name': self.name,
         'email': self.email,
-        'created_at': self.created_at       
+        'created_at': self.created_at.strftime('%a, %d %b %Y %H:%M:%S GMT')       
         }
 
 class Transaction(db.Model):
