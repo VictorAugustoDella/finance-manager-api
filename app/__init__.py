@@ -3,6 +3,7 @@ from os import getenv
 from .routes.auth import auth_bp
 from .routes.transaction import transaction_bp
 from flask_jwt_extended import JWTManager
+from .config.jwt_handlers import setup_jwt_handlers
 
 from db import db
 
@@ -12,6 +13,7 @@ def create_app():
     app.config['SECRET_KEY'] = getenv('SECRET_KEY', 'dev-secret-key')
     app.config['JWT_SECRET_KEY'] = getenv('JWT_SECRET_KEY', 'dev-jwt-secret-key')
     jwt = JWTManager(app)
+    setup_jwt_handlers(jwt)
     
 
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
