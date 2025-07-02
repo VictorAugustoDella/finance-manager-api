@@ -35,7 +35,7 @@ def register():
 
     #Verificando se possui um usuario ja cadastrado com esse nome
     if User.query.filter_by(email=email).first():
-        return jsonify({'error': 'email ja registrado'}), 409
+        return jsonify({'error': 'Email ja registrado'}), 409
     
     newuser = User(name=name, email=email, password=generate_password_hash(password))
 

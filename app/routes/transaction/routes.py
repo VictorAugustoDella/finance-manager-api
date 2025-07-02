@@ -97,7 +97,7 @@ def create_transaction():
     db.session.add(transaction)
     db.session.commit()
 
-    return jsonify({'trancation_created': transaction.to_dict()}), 201
+    return jsonify({'transaction_created': transaction.to_dict()}), 201
 
 
 @transaction_bp.route('/transactions/<int:id>', methods=['PUT'])
