@@ -59,3 +59,36 @@ def test_register_without_camp(client):
     assert response.get_json() == {'error': 'Todos os campos são obrigatórios'}
     
 
+def test_login_success(client, user):
+    name, token = user
+    response = client.post('/login', json={"email": "testefixture@gmail.com", "password":"Senhateste4321"})
+    assert response.status_code == 200
+    assert "access_token" in response.get_json()
+
+def test_login_wrong_email(client, user):
+    response = client.post('/login', json={"email": "testefixture222@gmail.com", "password":"Senhateste4321"})
+    assert response.status_code == 401
+    assert response.get_json() == {'error': 'Email ou senha incorretos'}
+
+def test_login_wrong_password(client, user):
+    response = client.post('/login', json={"email": "testefixture@gmail.com", "password":"1234etsetahneS"})
+    assert response.status_code == 401
+    assert response.get_json() == {'error': 'Email ou senha incorretos'}
+
+def test_login_without_email(client, user):
+    response = client.post('/login', json={ "password":"Senhateste4321"})
+    assert response.status_code == 400
+    assert response.get_json() == {'error': 'Email e senha são obrigatórios'}
+
+def test_login_without_password(client, user):
+    response = client.post('/login', json={"email": "testefixture@gmail.com"})
+    assert response.status_code == 400
+    assert response.get_json() == {'error': 'Email e senha são obrigatórios'}
+
+def test_login_normalization_email(client, user):
+    response = client.post('/login', json={"email": " tEstEfiXTurE@gMAIl.com  ", "password":"Senhateste4321"})
+    assert response.status_code == 200
+    
+
+
+

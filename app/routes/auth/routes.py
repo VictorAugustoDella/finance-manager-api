@@ -49,7 +49,6 @@ def register():
 def login():
     data = request.get_json()
 
-    name = data.get('name')
     email = data.get('email')
     password = data.get('password')
 
