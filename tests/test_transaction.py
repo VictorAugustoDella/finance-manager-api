@@ -15,7 +15,6 @@ def client():
     app.config['JWT_SECRET_KEY'] = 'test-secret'
 
 
-
     with app.app_context():
         db.create_all()
         client = app.test_client()
@@ -132,6 +131,7 @@ def test_get_invalid_token(client, user, transaction):
     assert response.status_code == 422
     assert response.get_json() == {'error': 'Token inválido'}
 
+
 #####
 def test_get_by_id_success(client, user, transaction):
     user_obj, token = user
@@ -216,6 +216,8 @@ def test_create_transaction_invalid_token(client, user, transaction):
     
     response = client.post('/transactions', json={"type": "expense", "amount": 200, "category": "transporte"}, headers={'Authorization': f'Bearer {"invalidtoken"}'})
     assert response.status_code == 422
+    assert response.get_json() == {'error': 'Token inválido'}
+
 
 #####
 def test_edit_transaction_success(client, user, transaction):
@@ -266,4 +268,42 @@ def test_edit_transaction_invalid_token(client, user, transaction):
     response = client.put('/transactions/1', json={"type": "expense", "amount": 200, "category": "transporte"}, headers={'Authorization': f'Bearer {"invalidtoken"}'})
     assert response.status_code == 422
     assert response.get_json() == {'error': 'Token inválido'}
+
+
+#####
+def test_delete_transaction_success(client, user, transaction):
+    user_obj, token = user
+    
+    response = client.delete('/transactions/1', headers={'Authorization': f'Bearer {token}'})
+    assert response.status_code == 204
+    assert response.data == b''
+
+def test_delete_transaction_inexistent(client, user, transaction):
+    user_obj, token = user
+    
+    response = client.delete('/transactions/99', headers={'Authorization': f'Bearer {token}'})
+    assert response.status_code == 404
+    assert response.get_json() == {'error': 'Transação não encontrada'}
+
+def test_delete_transaction_other_user(client, user2, transaction):
+    user_obj, token = user2
+    
+    response = client.delete('/transactions/1', headers={'Authorization': f'Bearer {token}'})
+    assert response.status_code == 403
+    assert response.get_json() == {'error': 'Você não tem permissão para acessar essa transação'}
+
+def test_delete_transaction_without_authentication(client, user, transaction):
+    user_obj, token = user
+    
+    response = client.delete('/transactions/1')
+    assert response.status_code == 401
+    assert response.get_json() == {'error': 'Cabeçalho de autorização ausente'}
+
+def test_delete_transaction_invalid_token(client, user, transaction):
+    user_obj, token = user
+    
+    response = client.delete('/transactions/1', headers={'Authorization': f'Bearer {"invalidtoken"}'})
+    assert response.status_code == 422
+    assert response.get_json() == {'error': 'Token inválido'}
+
 
