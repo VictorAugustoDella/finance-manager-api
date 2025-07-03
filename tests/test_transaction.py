@@ -130,8 +130,9 @@ def test_get_invalid_token(client, user, transaction):
     
     response = client.get('/transactions?amount=150', headers={'Authorization': f'Bearer {"invalidtoken"}'})
     assert response.status_code == 422
+    assert response.get_json() == {'error': 'Token inválido'}
 
-######
+#####
 def test_get_by_id_success(client, user, transaction):
     user_obj, token = user
     
@@ -167,5 +168,53 @@ def test_get_by_id_invalid_token(client, user, transaction):
     assert response.status_code == 422
     assert response.get_json() == {'error': 'Token inválido'}
 
+#####
+def test_create_transaction_success(client, user, transaction):
+    user_obj, token = user
+    
+    response = client.post('/transactions', json={"type": "expense", "amount": 200, "category": "transporte"}, headers={'Authorization': f'Bearer {token}'})
+    assert response.status_code == 201
+    assert "transaction_created" in response.get_json()
 
+def test_create_transaction_missing_camp(client, user, transaction):
+    user_obj, token = user
+    
+    response = client.post('/transactions', json={"amount": 200, "category": "transporte"}, headers={'Authorization': f'Bearer {token}'})
+    assert response.status_code == 400
+    assert response.get_json() == {'error': 'Type, amount e category devem ser obrigatorios'}
+
+def test_create_transaction_invalid_type(client, user, transaction):
+    user_obj, token = user
+    
+    response = client.post('/transactions', json={"type": "trade", "amount": 200, "category": "transporte"}, headers={'Authorization': f'Bearer {token}'})
+    assert response.status_code == 400
+    assert response.get_json() == {'error': 'Tipo de transação inválido'}
+
+def test_create_transaction_invalid_amount(client, user, transaction):
+    user_obj, token = user
+    
+    response = client.post('/transactions', json={"type": "expense", "amount": "duzentos", "category": "transporte"}, headers={'Authorization': f'Bearer {token}'})
+    assert response.status_code == 400
+    assert response.get_json() == {'error': 'Amount deve ser um numero maior que 0'}
+
+def test_create_transaction_invalid_category(client, user, transaction):
+    user_obj, token = user
+    
+    response = client.post('/transactions', json={"type": "expense", "amount": 200, "category": "freelance"}, headers={'Authorization': f'Bearer {token}'})
+    assert response.status_code == 400
+    assert response.get_json() == {'error': 'Categoria inválida'}
+
+def test_create_transaction_without_authentication(client, user, transaction):
+    user_obj, token = user
+    
+    response = client.post('/transactions', json={"type": "expense", "amount": 200, "category": "transporte"})
+    assert response.status_code == 401
+    assert response.get_json() == {'error': 'Cabeçalho de autorização ausente'}
+
+def test_create_transaction_invalid_token(client, user, transaction):
+    user_obj, token = user
+    
+    response = client.post('/transactions', json={"type": "expense", "amount": 200, "category": "transporte"}, headers={'Authorization': f'Bearer {"invalidtoken"}'})
+    assert response.status_code == 422
+    assert response.get_json() == {'error': 'Token inválido'}
 
