@@ -216,5 +216,54 @@ def test_create_transaction_invalid_token(client, user, transaction):
     
     response = client.post('/transactions', json={"type": "expense", "amount": 200, "category": "transporte"}, headers={'Authorization': f'Bearer {"invalidtoken"}'})
     assert response.status_code == 422
+
+#####
+def test_edit_transaction_success(client, user, transaction):
+    user_obj, token = user
+    
+    response = client.put('/transactions/1', json={"type": "expense", "amount": 200, "category": "transporte"}, headers={'Authorization': f'Bearer {token}'})
+    assert response.status_code == 200
+    assert "transaction edited" in response.get_json() 
+
+def test_edit_transaction_inexistent(client, user, transaction):
+    user_obj, token = user
+    
+    response = client.put('/transactions/99', json={"type": "expense", "amount": 200, "category": "transporte"}, headers={'Authorization': f'Bearer {token}'})
+    assert response.status_code == 404
+    assert response.get_json() == {'error': 'Transação não encontrada'}
+
+def test_edit_transaction_other_user(client, user2, transaction):
+    user_obj, token = user2
+    
+    response = client.put('/transactions/1', json={"type": "expense", "amount": 200, "category": "transporte"}, headers={'Authorization': f'Bearer {token}'})
+    assert response.status_code == 403
+    assert response.get_json() == {'error': 'Você não tem permissão para acessar essa transação'}
+
+def test_edit_transaction_missing_camp(client, user, transaction):
+    user_obj, token = user
+    
+    response = client.put('/transactions/1', json={"amount": 200, "category": "transporte"}, headers={'Authorization': f'Bearer {token}'})
+    assert response.status_code == 400
+    assert response.get_json() == {'error': 'Type, amount e category devem ser obrigatorios'}
+
+def test_edit_transaction_invalid_type(client, user, transaction):
+    user_obj, token = user
+    
+    response = client.put('/transactions/1', json={"type": "trade", "amount": 200, "category": "transporte"}, headers={'Authorization': f'Bearer {token}'})
+    assert response.status_code == 400
+    assert response.get_json() == {'error': 'Tipo de transação inválido'}
+
+def test_edit_transaction_without_authentication(client, user, transaction):
+    user_obj, token = user
+    
+    response = client.put('/transactions/1', json={"type": "expense", "amount": 200, "category": "transporte"})
+    assert response.status_code == 401
+    assert response.get_json() == {'error': 'Cabeçalho de autorização ausente'}
+
+def test_edit_transaction_invalid_token(client, user, transaction):
+    user_obj, token = user
+    
+    response = client.put('/transactions/1', json={"type": "expense", "amount": 200, "category": "transporte"}, headers={'Authorization': f'Bearer {"invalidtoken"}'})
+    assert response.status_code == 422
     assert response.get_json() == {'error': 'Token inválido'}
 
