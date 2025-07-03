@@ -37,6 +37,6 @@ class Transaction(db.Model):
         'type': self.type,
         'amount': self.amount,
         'category': self.category,
-        'date': self.date,       
+        'date': self.date.isoformat(),       
         }
 

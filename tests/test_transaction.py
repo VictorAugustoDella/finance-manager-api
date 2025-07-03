@@ -1,0 +1,136 @@
+from app import create_app
+from app.routes.transaction.routes import edit_transaction, view_transaction, view_transactions, create_transaction, delete_transaction
+from app.models.userModels import Transaction, User, db
+import pytest
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_jwt_extended import create_access_token
+
+
+
+@pytest.fixture()
+def client():
+    app = create_app()
+    app.config['TESTING'] = True
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config['JWT_SECRET_KEY'] = 'test-secret'
+
+
+
+    with app.app_context():
+        db.create_all()
+        client = app.test_client()
+        yield client
+        db.drop_all()
+
+
+@pytest.fixture
+def user(client):
+    with client.application.app_context():
+        user = User(name='Victor Augusto', email='testefixture@gmail.com', password=generate_password_hash('Senhateste4321')) 
+        db.session.add(user)
+        db.session.commit()
+
+        token = create_access_token(identity=str(user.id))
+        return user, token
+    
+@pytest.fixture
+def user2(client):
+    with client.application.app_context():
+        user = User(name='Marcos Aurelio', email='testefixture22@gmail.com', password=generate_password_hash('Senhateste4321')) 
+        db.session.add(user)
+        db.session.commit()
+
+        token = create_access_token(identity=str(user.id))
+        return user, token
+    
+
+@pytest.fixture
+def transaction(client, user):
+    user_obj, _ = user
+    with client.application.app_context():
+        t = Transaction(type='expense', amount=200, category='outros', user_id=user_obj.id)
+        db.session.add(t)
+        db.session.commit()
+        return t.to_dict()
+
+
+
+def test_get_success(client, user, transaction):
+    user_obj, token = user
+    
+    response = client.get('/transactions', headers={
+        'Authorization': f'Bearer {token}'
+    })
+    assert response.status_code == 200
+    assert response.get_json() == [transaction]
+
+def test_get_type_filter_match(client, user, transaction):
+    user_obj, token = user
+    
+    response = client.get('/transactions?type=expense', headers={
+        'Authorization': f'Bearer {token}'
+    })
+    assert response.status_code == 200
+    assert response.get_json() == [transaction]
+
+def test_get_amount_filter_match(client, user, transaction):
+    user_obj, token = user
+    
+    response = client.get('/transactions?amount=150', headers={
+        'Authorization': f'Bearer {token}'
+    })
+    assert response.status_code == 200
+    assert response.get_json() == [transaction]
+
+def test_get_category_filter_match(client, user, transaction):
+    user_obj, token = user
+    
+    response = client.get('/transactions?category=ouTRos', headers={
+        'Authorization': f'Bearer {token}'
+    })
+    assert response.status_code == 200
+    assert response.get_json() == [transaction]
+
+def test_get_category_filter_no_match(client, user, transaction):
+    user_obj, token = user
+    
+    response = client.get('/transactions?category=moradia', headers={
+        'Authorization': f'Bearer {token}'
+    })
+    assert response.status_code == 200
+    assert response.get_json() == []
+
+def test_get_type_filter_invalid(client, user, transaction):
+    user_obj, token = user
+    
+    response = client.get('/transactions?type=trade', headers={
+        'Authorization': f'Bearer {token}'
+    })
+    assert response.status_code == 400
+    assert response.get_json() == {'errors': {'type': 'Tipo invalido'}}
+
+def test_get_amount_filter_value_invalid(client, user, transaction):
+    user_obj, token = user
+    
+    response = client.get('/transactions?amount=oitenta', headers={
+        'Authorization': f'Bearer {token}'
+    })
+    assert response.status_code == 400
+    assert response.get_json() == {'errors': {'amount': 'Amount deve ser um número'}}
+
+def test_get_without_token(client, user, transaction):
+    user_obj, token = user
+    
+    response = client.get('/transactions?amount=150')
+    assert response.status_code == 401
+    assert response.get_json() == {'error': 'Cabeçalho de autorização ausente'}
+
+def test_get_invalid_token(client, user, transaction):
+    user_obj, token = user
+    
+    response = client.get('/transactions?amount=150', headers={'Authorization': f'Bearer {"invalidtoken"}'})
+    assert response.status_code == 422
+    assert response.get_json() == {'error': 'Token inválido'}
+
+
+
