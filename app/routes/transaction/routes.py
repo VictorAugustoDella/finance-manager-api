@@ -6,7 +6,10 @@ from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_tok
 from ...models.categories import VALID_CATEGORIES
 from ...utils.validators import validator_amount, normalize_str
 
-all_categories = [normalize_str(cat) for cat in VALID_CATEGORIES['income'] + VALID_CATEGORIES['expense']]
+all_categories = {
+    vtype: [normalize_str(cat) for cat in categories]
+    for vtype, categories in VALID_CATEGORIES.items()
+}
 
 @transaction_bp.route('/transactions', methods=['GET'])
 @jwt_required()
@@ -21,7 +24,7 @@ def view_transactions():
     amount = request.args.get('amount')
     category = request.args.get('category')
     date = request.args.get('date')
-
+    
     if type is not None:
         if type not in ['income', 'expense', 'refund']:
             error['type'] = 'Tipo invalido'
@@ -87,7 +90,7 @@ def create_transaction():
         return jsonify({'error': 'Amount deve ser um numero maior que 0'}), 400
         
     
-    if category not in all_categories:
+    if category not in all_categories[vtype]:
         return jsonify({'error': 'Categoria inválida'}), 400
     
     
@@ -131,7 +134,7 @@ def edit_transaction(id):
         return jsonify({'error': 'Amount deve ser um numero maior que 0'}), 400
         
     
-    if category not in all_categories:
+    if category not in all_categories[vtype]:
         return jsonify({'error': 'Categoria inválida'}), 400
     
     transaction_obj.type = vtype
