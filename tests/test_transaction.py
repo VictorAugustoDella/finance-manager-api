@@ -130,6 +130,41 @@ def test_get_invalid_token(client, user, transaction):
     
     response = client.get('/transactions?amount=150', headers={'Authorization': f'Bearer {"invalidtoken"}'})
     assert response.status_code == 422
+
+######
+def test_get_by_id_success(client, user, transaction):
+    user_obj, token = user
+    
+    response = client.get('/transactions/1', headers={'Authorization': f'Bearer {token}'})
+    assert response.status_code == 200
+    assert response.get_json() == {'transaction': transaction}
+
+def test_get_by_id_inexistent_transaction(client, user, transaction):
+    user_obj, token = user
+    
+    response = client.get('/transactions/5', headers={'Authorization': f'Bearer {token}'})
+    assert response.status_code == 404
+    assert response.get_json() == {'error': 'Transação não encontrada'}
+
+def test_get_by_id_other_user(client, user2, transaction):
+    user_obj, token = user2
+    
+    response = client.get('/transactions/1', headers={'Authorization': f'Bearer {token}'})
+    assert response.status_code == 403
+    assert response.get_json() == {'error': 'Transação pertencente a outro usuario'}
+
+def test_get_by_id_without_authentication(client, user, transaction):
+    user_obj, token = user
+    
+    response = client.get('/transactions/1')
+    assert response.status_code == 401
+    assert response.get_json() == {'error': 'Cabeçalho de autorização ausente'}
+
+def test_get_by_id_invalid_token(client, user, transaction):
+    user_obj, token = user
+    
+    response = client.get('/transactions/1', headers={'Authorization': f'Bearer {"invalidtoken"}'})
+    assert response.status_code == 422
     assert response.get_json() == {'error': 'Token inválido'}
 
 
