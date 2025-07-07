@@ -29,3 +29,7 @@ def normalize_str(text):
     text = unicodedata.normalize('NFKD', text)
     text = text.encode('ASCII', 'ignore').decode('utf-8')
     return text.lower().strip()
+
+def is_valid_month(month):
+    pattern = r'^\d{4}-(0[1-9]|1[0-2])$'
+    return re.match(pattern, month) is not None

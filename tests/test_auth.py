@@ -10,12 +10,13 @@ from flask_jwt_extended import create_access_token
 def client():
     app = create_app()
     app.config['TESTING'] = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///memory:'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
     app.config['JWT_SECRET_KEY'] = 'test-secret'
 
     with app.app_context():
         db.create_all()
-        yield app.test_client()
+        client = app.test_client()
+        yield client
         db.drop_all()
 
 @pytest.fixture
@@ -119,10 +120,3 @@ def test_profile_user_inexistent(client, user):
     }) 
     assert response.status_code == 404
     assert response.get_json() == {'error': 'Usuário não encontrado'}
-
-
-
-
-
-
-

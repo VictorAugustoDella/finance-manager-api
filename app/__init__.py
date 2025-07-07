@@ -2,8 +2,10 @@ from flask import Flask
 from os import getenv
 from .routes.auth import auth_bp
 from .routes.transaction import transaction_bp
+from .routes.relatory import relatory_bp
 from flask_jwt_extended import JWTManager
 from .config.jwt_handlers import setup_jwt_handlers
+
 
 from db import db
 
@@ -22,6 +24,7 @@ def create_app():
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(transaction_bp)
+    app.register_blueprint(relatory_bp)
 
 
     with app.app_context():
