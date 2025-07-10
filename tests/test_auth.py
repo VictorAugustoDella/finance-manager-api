@@ -1,5 +1,5 @@
 from app.routes.auth.routes import register, login, profile
-from app.models.userModels import User
+from app.models.user_transaction import User
 import pytest
 from app import create_app, db
 from werkzeug.security import generate_password_hash, check_password_hash

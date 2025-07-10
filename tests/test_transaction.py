@@ -1,6 +1,6 @@
 from app import create_app
 from app.routes.transaction.routes import edit_transaction, view_transaction, view_transactions, create_transaction, delete_transaction
-from app.models.userModels import Transaction, User, db
+from app.models.user_transaction import Transaction, User, db
 import pytest
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token

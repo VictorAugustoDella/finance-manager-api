@@ -1,12 +1,12 @@
 from flask import Flask, request, jsonify
 from . import relatory_bp
-from ...models.userModels import User, Transaction, db
+from ...models.user_transaction import User, Transaction, db
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token
 from ...models.categories import VALID_CATEGORIES
 from ...utils.validators import validator_amount, normalize_str, is_valid_month
 
-@relatory_bp.route('/summary')
+@relatory_bp.route('/relatory')
 @jwt_required()
 def relatory_monthly():
     
@@ -15,8 +15,13 @@ def relatory_monthly():
     if month and not is_valid_month(month):
         return jsonify({'error': 'Parâmetro "month" inválido. Use o formato YYYY-MM'}), 400
     
-    start_date =f"{month}-01"
-    end_date = f"{month}-31"
+    if month != None and month != '':
+        start_date =f"{month}-01"
+        end_date = f"{month}-31"
+    
+    else:
+        start_date = "0000-01"
+        end_date = "2125-31"
     
 
     transactions= Transaction.query.filter(
@@ -33,14 +38,15 @@ def relatory_monthly():
         if t.type == 'expense':
             category = t.category
             category_sums[category] = category_sums.get(category, 0) + t.amount
-
-    total_expense = sum(category_sums.values())
+    
     category_percentages ={
-        category: round((val / total_expense) * 100, 2) for category, val in category_sums.items()
+        category: round((val / expense_total) * 100, 2) for category, val in category_sums.items()
     }
+
+    type_sumary = {}
 
     return jsonify({'income': income_total,
                     'expense': expense_total,
                     'balance': balance,
-                    'total expense': total_expense,
-                    'category percentages': category_percentages})
+                    'expense by categorie': category_sums,
+                    'category percentages': category_percentages}), 200

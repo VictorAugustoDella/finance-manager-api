@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from . import auth_bp
-from ...models.userModels import User, Transaction, db
+from ...models.user_transaction import User, Transaction, db
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token
 from ...utils.validators import is_valid_email, is_valid_full_name, is_valid_password
