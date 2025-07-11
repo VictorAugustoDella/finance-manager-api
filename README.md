@@ -114,7 +114,7 @@ finance-manager-api/
 │
 ├── tests/
 │   ├── test_auth.py              # Testes para autenticação (login, register, me)
-│   └── test_transaction.py              # Testes para as transações (CRUD e filtros)
+│   └── test_transaction.py       # Testes para as transações (CRUD e filtros)
 │
 ├── db.py                         # Instância do SQLAlchemy
 ├── README.md                     # Documentação do projeto
