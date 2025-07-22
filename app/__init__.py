@@ -1,5 +1,7 @@
 from flask import Flask
 from os import getenv
+from dotenv import load_dotenv
+load_dotenv()
 from .routes.auth import auth_bp
 from .routes.transaction import transaction_bp
 from .routes.relatory import relatory_bp
@@ -18,7 +20,7 @@ def create_app():
     setup_jwt_handlers(jwt)
     
 
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
+    app.config['SQLALCHEMY_DATABASE_URI'] = getenv('DATABASE_URL', 'sqlite:///db.sqlite3')
     db.init_app(app)
 
 
