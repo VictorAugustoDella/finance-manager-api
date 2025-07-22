@@ -1,4 +1,4 @@
-<h1 align="center">💼 finance-manager-api</h1>
+<h1 align="center">💼 Finance Manager API</h1>
 
 <p align="center">
   Uma API RESTful de gerenciamento de transações financeiras com autenticação JWT, validações robustas e testes automatizados.<br>
@@ -17,7 +17,7 @@
 
 ---
 
-## 🚀 Tecnologias Usadas
+## 🧰 Tecnologias Utilizadas
 
 - [Flask](https://flask.palletsprojects.com/) — microframework web em Python
 - [Flask-SQLAlchemy](https://flask-sqlalchemy.palletsprojects.com/) — ORM para banco de dados
@@ -114,7 +114,7 @@ finance-manager-api/
 │
 ├── tests/
 │   ├── test_auth.py              # Testes para autenticação (login, register, me)
-│   └── test_task.py              # Testes para as transações (CRUD e filtros)
+│   └── test_transaction.py       # Testes para as transações (CRUD e filtros)
 │
 ├── db.py                         # Instância do SQLAlchemy
 ├── README.md                     # Documentação do projeto
@@ -128,9 +128,9 @@ O projeto possui cobertura de testes automatizados com Pytest.
 pytest
 ```
 ### Testes cobrem:
-Cadastro, login e autenticação
-CRUD de transações
-Erros esperados (401, 403, 404, etc)
+- Cadastro, login e autenticação
+- CRUD de transações
+- Erros esperados (401, 403, 404, etc)
 
 ## 📄 Licença
 Esse projeto está sob a licença MIT. Veja o arquivo [LICENSE](https://github.com/VictorAugustoDella/finance-manager-api/blob/main/LICENSE) para mais detalhes.
