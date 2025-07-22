@@ -132,6 +132,10 @@ pytest
 - CRUD de transações
 - Erros esperados (401, 403, 404, etc)
 
+# Observação
+### Atualmente, os testes são configurados para usar **exclusivamente** o **SQLite** em memória e não interagem com o banco de dados MySQL principal. Isso garante que os testes sejam rápidos e não modifiquem seus dados reais.
+
+
 ## 📄 Licença
 Esse projeto está sob a licença MIT. Veja o arquivo [LICENSE](https://github.com/VictorAugustoDella/finance-manager-api/blob/main/LICENSE) para mais detalhes.
 ```yaml
