@@ -2,6 +2,7 @@ from app import create_app
 from app.routes.transaction.routes import edit_transaction, view_transaction, view_transactions, create_transaction, delete_transaction
 from app.models.user_transaction import Transaction, User, db
 import pytest
+from os import getenv
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token
 
@@ -9,9 +10,11 @@ from flask_jwt_extended import create_access_token
 
 @pytest.fixture()
 def client():
-    app = create_app()
+
+    test_db_url = getenv("TEST_DATABASE_URL", "sqlite:///:memory:")
+
+    app = create_app(database_uri=test_db_url)
     app.config['TESTING'] = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
     app.config['JWT_SECRET_KEY'] = 'test-secret'
 
 

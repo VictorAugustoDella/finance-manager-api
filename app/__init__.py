@@ -12,7 +12,7 @@ from .config.jwt_handlers import setup_jwt_handlers
 from db import db
 
 
-def create_app():
+def create_app(database_uri=None):
     app = Flask(__name__)
     app.config['SECRET_KEY'] = getenv('SECRET_KEY', 'dev-secret-key')
     app.config['JWT_SECRET_KEY'] = getenv('JWT_SECRET_KEY', 'dev-jwt-secret-key')
@@ -20,7 +20,7 @@ def create_app():
     setup_jwt_handlers(jwt)
     
 
-    app.config['SQLALCHEMY_DATABASE_URI'] = getenv('DATABASE_URL', 'sqlite:///db.sqlite3')
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_uri or getenv('DATABASE_URL', 'sqlite:///db.sqlite3')
     db.init_app(app)
 
 
