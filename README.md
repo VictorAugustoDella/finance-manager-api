@@ -10,10 +10,17 @@
   <img src="https://img.shields.io/badge/Flask-3.1.0-lightgrey?style=flat-square&logo=flask" />
   <img src="https://img.shields.io/badge/FlaskSQLAlchemy-3.1.1-ff6347?style=flat-square" />
   <img src="https://img.shields.io/badge/Pytest-Testes-6c5ce7?style=flat-square" />
-  <img src="https://img.shields.io/badge/Status-Em_Desenvolvimento-orange?style=flat-square" />
 </p>
 
 <hr>
+
+---
+
+## 🌐 URL de Deploy
+
+A API está disponível no Render:
+
+[https://finance-manager-api-namz.onrender.com](https://finance-manager-api-namz.onrender.com)
 
 ---
 
@@ -27,7 +34,7 @@
 
 ---
 
-## 🛠️ Instalação e Execução
+## 🛠️ Instalação e Execução Local (Opcional)
 
 
  ### 1. Clone o repositório
@@ -48,6 +55,26 @@ pip install -r requirements.txt
 ```bash
 python run.py
 ```
+---
+## ⚙️ Variáveis de Ambiente (Render)
+
+#### Não é necessário .env no Render, configure no painel:
+
+DATABASE_URL → URL do Postgres do Render
+
+SECRET_KEY → chave do Flask
+
+JWT_SECRET_KEY → chave JWT
+
+#### Exemplo local opcional:
+
+```env
+DATABASE_URL=sqlite:///db.sqlite3
+SECRET_KEY=dev-secret-key
+JWT_SECRET_KEY=jwt-dev-key
+```
+
+---
 ## 📬 Rotas
 ### 🔐 Auth
 
@@ -74,15 +101,68 @@ python run.py
 | GET    | `/relatory`               | Retorna um resumo financeiro geral do usuário |
 | GET    | `/relatory?month=2025-07` | Retorna o resumo financeiro de julho de 2025  |
 
-## ✨ Contribuição
-Achou um bug? Quer ajudar?
-Sinta-se livre para abrir uma [issue](https://github.com/VictorAugustoDella/finance-manager-api/issues) ou enviar um Pull Request!
+---
 
-## 🔐 Autenticação
-Todas as rotas de transações (/transactions) requerem autenticação JWT via cabeçalho:
-```http
-Authorization: Bearer <seu_token_jwt>
+## 📬 Testando no Postman / Thunder Client
+
+Para testar a API, você precisa configurar **Headers e Body** corretamente.
+
+- Para comecar, faca um POST no `/register` com JSON:
+
+```json
+{
+  "name": "seu_nome seu_sobrenome",
+  "email": "seu_email",
+  "password": "sua_senha"
+}
 ```
+
+### 🔐 Autenticação JWT
+
+- Todas as rotas de transações e relatórios requerem JWT no cabeçalho.
+- Header:
+
+| Key           | Value                  |
+| ------------- | ---------------------- |
+| Authorization | Bearer <seu_token_jwt> |
+
+- Obtenha o token fazendo POST no `/login` com JSON:
+
+```json
+{
+  "email": "seu_email",
+  "password": "sua_senha"
+}
+```
+
+- Resposta esperada:
+```json
+{
+  "access_token": "eyJ0eXAiOiJKV1QiLCJh..."
+}
+```
+
+### Criar Transação (/transactions)
+- Headers:
+
+| Key           | Value                     |
+| ------------- | ------------------------- |
+| Authorization | Bearer \<seu\_token\_jwt> |
+
+- Body (JSON):
+
+```json
+{
+  "amount": 1200,
+  "category": "Moradia",
+  "type": "expense",
+}
+```
+- Resposta esperada:
+201 Created + JSON da transação criada
+
+
+---
 
 ## 📁 Estrutura de Pastas
 ```bash
@@ -121,6 +201,7 @@ finance-manager-api/
 ├── requirements.txt              # Dependências do projeto
 └── run.py                        # Ponto de entrada da aplicação
 ```
+
 ## 🧪 Testes
 O projeto possui cobertura de testes automatizados com Pytest.
 ```bash
@@ -133,8 +214,11 @@ pytest
 - Erros esperados (401, 403, 404, etc)
 
 # Observação
-### Atualmente, os testes são configurados para usar **exclusivamente** o **SQLite** em memória e não interagem com o banco de dados MySQL principal. Isso garante que os testes sejam rápidos e não modifiquem seus dados reais.
+Atualmente, os testes são configurados para usar **exclusivamente** o **SQLite** em memória e não interagem com o banco de dados PostgreSQL principal. Isso garante que os testes sejam rápidos e não modifiquem seus dados reais.
 
+## ✨ Contribuição
+Achou um bug? Quer ajudar?
+Sinta-se livre para abrir uma [issue](https://github.com/VictorAugustoDella/finance-manager-api/issues) ou enviar um Pull Request!
 
 ## 📄 Licença
 Esse projeto está sob a licença MIT. Veja o arquivo [LICENSE](https://github.com/VictorAugustoDella/finance-manager-api/blob/main/LICENSE) para mais detalhes.
